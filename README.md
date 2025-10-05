@@ -2,6 +2,8 @@
 
 A beautiful Pomodoro study timer web app with session analytics and statistics. Features customizable work/break intervals, task management, productivity insights, daily/weekly progress charts, and session history.
 
+🚀 **[Live Demo](https://omairqazi29.github.io/focus-pulse/)**
+
 ## Features
 
 - ⏱️ **Pomodoro Timer** - Customizable work/break intervals
