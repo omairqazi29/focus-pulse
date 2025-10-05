@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus Pulse - Pomodoro Study Timer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 Focus Pulse</h1>
+            <p class="tagline">Track your focus, boost your productivity</p>
+        </header>
+
+        <main>
+            <div class="timer-section">
+                <div class="mode-selector">
+                    <button class="mode-btn active" data-mode="work">Focus</button>
+                    <button class="mode-btn" data-mode="short">Short Break</button>
+                    <button class="mode-btn" data-mode="long">Long Break</button>
+                </div>
+
+                <div class="timer-display">
+                    <div class="time" id="time">25:00</div>
+                    <div class="session-count">Session <span id="sessionCount">1</span> of 4</div>
+                </div>
+
+                <div class="timer-controls">
+                    <button class="control-btn start" id="startBtn">Start</button>
+                    <button class="control-btn reset" id="resetBtn">Reset</button>
+                </div>
+
+                <div class="settings-toggle">
+                    <button id="settingsBtn">⚙️ Settings</button>
+                </div>
+            </div>
+
+            <div class="tasks-section">
+                <h2>Tasks</h2>
+                <div class="task-input-container">
+                    <input type="text" id="taskInput" placeholder="What are you working on?">
+                    <button id="addTaskBtn">Add</button>
+                </div>
+                <ul class="task-list" id="taskList"></ul>
+            </div>
+
+            <div class="stats-section">
+                <h2>Today's Stats</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="todaySessions">0</div>
+                        <div class="stat-label">Sessions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="todayMinutes">0</div>
+                        <div class="stat-label">Minutes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="todayTasks">0</div>
+                        <div class="stat-label">Tasks Done</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="streak">0</div>
+                        <div class="stat-label">Day Streak</div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Weekly Progress</h3>
+                    <canvas id="weeklyChart"></canvas>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Settings</h2>
+                <button class="close-btn" id="closeSettings">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-item">
+                    <label>Focus Duration (minutes)</label>
+                    <input type="number" id="workDuration" min="1" max="60" value="25">
+                </div>
+                <div class="setting-item">
+                    <label>Short Break (minutes)</label>
+                    <input type="number" id="shortBreakDuration" min="1" max="30" value="5">
+                </div>
+                <div class="setting-item">
+                    <label>Long Break (minutes)</label>
+                    <input type="number" id="longBreakDuration" min="1" max="60" value="15">
+                </div>
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" id="autoStart">
+                        Auto-start next session
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" id="notifications" checked>
+                        Enable notifications
+                    </label>
+                </div>
+                <button class="save-btn" id="saveSettings">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
