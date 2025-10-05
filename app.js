@@ -55,41 +55,49 @@ class FocusPulse {
     }
 
     attachEventListeners() {
-        document.getElementById('start-btn').addEventListener('click', () => this.toggleTimer());
-        document.getElementById('reset-btn').addEventListener('click', () => this.resetTimer());
-        document.getElementById('add-task-btn').addEventListener('click', () => this.addTask());
-        document.getElementById('task-input').addEventListener('keypress', (e) => {
+        document.getElementById('startBtn').addEventListener('click', () => this.toggleTimer());
+        document.getElementById('resetBtn').addEventListener('click', () => this.resetTimer());
+        document.getElementById('addTaskBtn').addEventListener('click', () => this.addTask());
+        document.getElementById('taskInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.addTask();
         });
 
-        document.querySelectorAll('.mode-tab').forEach(tab => {
-            tab.addEventListener('click', (e) => this.switchMode(e.target.dataset.mode));
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => this.switchMode(e.target.dataset.mode));
         });
 
-        ['work-duration', 'short-break', 'long-break'].forEach(id => {
-            document.getElementById(id).addEventListener('change', (e) => {
-                const key = id.replace('-', '').replace('duration', 'Duration').replace('break', 'Break');
-                this.settings[key] = parseInt(e.target.value);
-                this.saveSettings();
-                if (!this.state.isRunning) {
-                    this.resetTimer();
-                }
-            });
+        document.getElementById('settingsBtn').addEventListener('click', () => {
+            document.getElementById('settingsModal').style.display = 'flex';
+        });
+
+        document.getElementById('closeSettings').addEventListener('click', () => {
+            document.getElementById('settingsModal').style.display = 'none';
+        });
+
+        document.getElementById('saveSettings').addEventListener('click', () => {
+            this.settings.workDuration = parseInt(document.getElementById('workDuration').value);
+            this.settings.shortBreak = parseInt(document.getElementById('shortBreakDuration').value);
+            this.settings.longBreak = parseInt(document.getElementById('longBreakDuration').value);
+            this.saveSettings();
+            if (!this.state.isRunning) {
+                this.resetTimer();
+            }
+            document.getElementById('settingsModal').style.display = 'none';
         });
     }
 
     loadSettingsToUI() {
-        document.getElementById('work-duration').value = this.settings.workDuration;
-        document.getElementById('short-break').value = this.settings.shortBreak;
-        document.getElementById('long-break').value = this.settings.longBreak;
+        document.getElementById('workDuration').value = this.settings.workDuration;
+        document.getElementById('shortBreakDuration').value = this.settings.shortBreak;
+        document.getElementById('longBreakDuration').value = this.settings.longBreak;
     }
 
     switchMode(mode) {
         if (this.state.isRunning) return;
 
         this.state.mode = mode;
-        document.querySelectorAll('.mode-tab').forEach(tab => {
-            tab.classList.toggle('active', tab.dataset.mode === mode);
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.mode === mode);
         });
 
         switch(mode) {
@@ -109,7 +117,7 @@ class FocusPulse {
 
     toggleTimer() {
         this.state.isRunning = !this.state.isRunning;
-        const btn = document.getElementById('start-btn');
+        const btn = document.getElementById('startBtn');
 
         if (this.state.isRunning) {
             btn.textContent = 'Pause';
@@ -138,7 +146,7 @@ class FocusPulse {
     resetTimer() {
         this.stopTimer();
         this.state.isRunning = false;
-        document.getElementById('start-btn').textContent = 'Start';
+        document.getElementById('startBtn').textContent = 'Start';
 
         switch(this.state.mode) {
             case 'work':
@@ -158,7 +166,7 @@ class FocusPulse {
     timerComplete() {
         this.stopTimer();
         this.state.isRunning = false;
-        document.getElementById('start-btn').textContent = 'Start';
+        document.getElementById('startBtn').textContent = 'Start';
 
         if (this.state.mode === 'work') {
             this.recordSession();
@@ -203,14 +211,14 @@ class FocusPulse {
     updateDisplay() {
         const minutes = Math.floor(this.state.timeLeft / 60);
         const seconds = this.state.timeLeft % 60;
-        document.getElementById('timer').textContent =
+        document.getElementById('time').textContent =
             `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
         document.title = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} - Focus Pulse`;
     }
 
     addTask() {
-        const input = document.getElementById('task-input');
+        const input = document.getElementById('taskInput');
         const taskName = input.value.trim();
 
         if (!taskName) return;
@@ -233,7 +241,6 @@ class FocusPulse {
         this.state.tasks = this.state.tasks.filter(t => t.id !== id);
         if (this.state.currentTask === id) {
             this.state.currentTask = null;
-            document.getElementById('current-task').textContent = 'No task selected';
         }
         this.saveTasks();
         this.renderTasks();
@@ -241,13 +248,13 @@ class FocusPulse {
 
     selectTask(id) {
         this.state.currentTask = id;
-        const task = this.state.tasks.find(t => t.id === id);
-        document.getElementById('current-task').textContent = task ? task.name : 'No task selected';
         this.renderTasks();
     }
 
     renderTasks() {
-        const taskList = document.getElementById('task-list');
+        const taskList = document.getElementById('taskList');
+        if (!taskList) return;
+
         taskList.innerHTML = '';
 
         this.state.tasks.forEach(task => {
@@ -265,6 +272,8 @@ class FocusPulse {
 
     renderHistory() {
         const historyList = document.getElementById('history-list');
+        if (!historyList) return;
+
         const recentSessions = this.state.sessions.slice(-10).reverse();
 
         historyList.innerHTML = '';
@@ -289,11 +298,16 @@ class FocusPulse {
             new Date(s.date).toDateString() === today
         );
 
-        const totalMinutes = this.state.sessions.reduce((sum, s) => sum + s.duration, 0);
+        const todayMinutes = todaySessions.reduce((sum, s) => sum + s.duration, 0);
+        const todayTasks = new Set(todaySessions.map(s => s.task)).size;
 
-        document.getElementById('total-sessions').textContent = this.state.sessions.length;
-        document.getElementById('today-sessions').textContent = todaySessions.length;
-        document.getElementById('total-time').textContent = `${Math.floor(totalMinutes / 60)}h ${totalMinutes % 60}m`;
+        const todaySessionsEl = document.getElementById('todaySessions');
+        const todayMinutesEl = document.getElementById('todayMinutes');
+        const todayTasksEl = document.getElementById('todayTasks');
+
+        if (todaySessionsEl) todaySessionsEl.textContent = todaySessions.length;
+        if (todayMinutesEl) todayMinutesEl.textContent = todayMinutes;
+        if (todayTasksEl) todayTasksEl.textContent = todayTasks;
     }
 }
 
